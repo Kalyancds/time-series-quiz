@@ -774,14 +774,9 @@
           <div class="error-text" id="feedback-status"></div>
 
           <div class="result-actions">
-            <div id="post-quiz-buttons">
-			  <button id="submit-feedback-btn" class="btn btn-primary">
-			    Submit & Save Results
-			  </button>
-			  <button id="exit-btn" class="btn btn-secondary" style="display:none;">
-			    Exit
-			  </button>
-			</div>
+            <button id="submit-feedback-btn" class="btn btn-primary">
+              Submit Feedback & Finish
+            </button>
           </div>
         </div>
       </section>
@@ -1746,47 +1741,27 @@
       btnPoll.addEventListener("click", usePoll);
 
       submitFeedbackBtn.addEventListener("click", async () => {
-		  const btn = submitFeedbackBtn;
-		  const exitBtn = document.getElementById("exit-btn");
-		  const statusEl = document.getElementById("feedback-status");
-		
-		  const feedbackText = document.getElementById("feedback-text").value.trim();
-		  const ratingValue = document.getElementById("feedback-rating").value.trim();
-		  const rating = ratingValue ? parseInt(ratingValue, 10) : null;
-		
-		  if (rating && (rating < 1 || rating > 5)) {
-		    statusEl.textContent = "⚠️ Rating must be between 1 and 5.";
-		    return;
-		  }
-		
-		  // Disable button temporarily while processing
-		  btn.disabled = true;
-		  btn.textContent = "Submitting...";
-		  statusEl.textContent = "Submitting response... please wait.";
-		
-		  const success = await sendFeedbackToBackend(feedbackText, rating);
-		
-		  if (success) {
-		    statusEl.style.color = "var(--success)";
-		    statusEl.textContent = "✔️ Your response has been saved successfully.";
-		    btn.style.display = "none";             // Hide submit
-		    exitBtn.style.display = "inline-flex";  // Show exit button
-		  } else {
-		    statusEl.style.color = "var(--danger)";
-		    statusEl.textContent = "❌ Failed to send. Please check connection and retry.";
-		    btn.disabled = false;
-		    btn.textContent = "Retry Submit";
-		  }
-		});
+        const feedbackText = document.getElementById("feedback-text").value.trim();
+        const ratingValue = document.getElementById("feedback-rating").value.trim();
+        const statusEl = document.getElementById("feedback-status");
 
-		document.getElementById("exit-btn").addEventListener("click", () => {
-		  // Option 1: Close tab (only works sometimes depending on browser permissions)
-		  window.close();
-		  
-		  // Fallback: Redirect to a safe page like your institution website
-		  window.location.href = "https://www.bmsce.ac.in/"; 
-		});
+        const rating = ratingValue ? parseInt(ratingValue, 10) : null;
+        if (rating && (rating < 1 || rating > 5)) {
+          statusEl.textContent = "Rating must be between 1 and 5.";
+          return;
+        }
 
+        statusEl.textContent = "Submitting feedback...";
+        submitFeedbackBtn.disabled = true;
+
+        const ok = await sendFeedbackToBackend(feedbackText, rating);
+        if (ok) {
+          statusEl.textContent = "Thank you! Your feedback has been recorded.";
+        } else {
+          statusEl.textContent = "Could not send feedback to server (stored only locally / in logs).";
+        }
+      });
+    });
   </script>
 
 <script>
@@ -1821,4 +1796,3 @@
 
 </body>
 </html>
-
